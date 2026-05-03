@@ -291,6 +291,148 @@
             line-height: 1.6;
         }
 
+        /* Camera Button */
+        .camera-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #818cf8;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 0.75rem;
+        }
+        .camera-btn:hover {
+            background: rgba(99, 102, 241, 0.3);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* Camera Modal */
+        .camera-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .camera-modal-overlay.open {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        .camera-modal {
+            background: #1e1b4b;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+        }
+        .camera-modal h3 {
+            color: #818cf8;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #camera-video {
+            width: 100%;
+            border-radius: 12px;
+            background: #000;
+            max-height: 300px;
+            object-fit: cover;
+        }
+        #camera-canvas { display: none; }
+        #camera-snapshot-preview {
+            width: 100%;
+            border-radius: 12px;
+            display: none;
+            border: 2px solid var(--primary);
+        }
+        .camera-actions {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        .cam-snap-btn {
+            flex: 1;
+            padding: 0.9rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        .cam-snap-btn:hover { background: var(--primary-hover); }
+        .cam-use-btn {
+            flex: 1;
+            padding: 0.9rem;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: #4ade80;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        .cam-use-btn.visible { display: flex; }
+        .cam-use-btn:hover { background: rgba(34, 197, 94, 0.3); }
+        .cam-retake-btn {
+            flex: 1;
+            padding: 0.9rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        .cam-retake-btn.visible { display: flex; }
+        .cam-close-btn {
+            width: 100%;
+            padding: 0.7rem;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-dim);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .cam-close-btn:hover { border-color: rgba(239,68,68,0.4); color: #f87171; }
+
         /* Responsive */
         @media (max-width: 640px) {
             .container { padding: 1.5rem; }
@@ -335,10 +477,13 @@
             <form action="encode" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Source Image (PNG/JPG)</label>
+                    <button type="button" class="camera-btn" onclick="openCamera('encode')">
+                        <i class="fas fa-camera"></i> Open Camera
+                    </button>
                     <div class="upload-area" id="drop-area-encode">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <p>Drag & Drop or Click to Upload</p>
-                        <input type="file" name="image" accept="image/*" onchange="previewImage(this, 'preview-encode')" required>
+                        <input type="file" name="image" id="encode-file-input" accept="image/*" onchange="previewImage(this, 'preview-encode')" required>
                         <img id="preview-encode" class="preview-img" alt="Preview">
                     </div>
                 </div>
@@ -364,10 +509,13 @@
             <form action="decode" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Encoded Image</label>
+                    <button type="button" class="camera-btn" onclick="openCamera('decode')">
+                        <i class="fas fa-camera"></i> Open Camera
+                    </button>
                     <div class="upload-area" id="drop-area-decode">
                         <i class="fas fa-file-image"></i>
                         <p>Drag & Drop Encoded Image</p>
-                        <input type="file" name="image" accept="image/*" onchange="previewImage(this, 'preview-decode')" required>
+                        <input type="file" name="image" id="decode-file-input" accept="image/*" onchange="previewImage(this, 'preview-decode')" required>
                         <img id="preview-decode" class="preview-img" alt="Preview">
                     </div>
                 </div>
@@ -398,6 +546,30 @@
                     session.removeAttribute("decodedMessage"); // Clear after showing
                 } 
             %>
+        </div>
+    </div>
+
+    <!-- ===== Camera Modal ===== -->
+    <div class="camera-modal-overlay" id="camera-overlay">
+        <div class="camera-modal">
+            <h3><i class="fas fa-camera"></i> Take a Photo</h3>
+            <video id="camera-video" autoplay playsinline muted></video>
+            <canvas id="camera-canvas"></canvas>
+            <img id="camera-snapshot-preview" alt="Snapshot Preview">
+            <div class="camera-actions">
+                <button class="cam-snap-btn" id="snap-btn" onclick="snapPhoto()">
+                    <i class="fas fa-camera"></i> Capture
+                </button>
+                <button class="cam-retake-btn" id="retake-btn" onclick="retakePhoto()">
+                    <i class="fas fa-redo"></i> Retake
+                </button>
+                <button class="cam-use-btn" id="use-btn" onclick="usePhoto()">
+                    <i class="fas fa-check"></i> Use Photo
+                </button>
+            </div>
+            <button class="cam-close-btn" onclick="closeCamera()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
         </div>
     </div>
 
@@ -515,6 +687,117 @@
                     area.style.background = 'transparent';
                 }, false);
             });
+        });
+
+        // ============================================
+        // CAMERA CAPTURE LOGIC
+        // ============================================
+        let cameraStream = null;
+        let activeTarget = null; // 'encode' or 'decode'
+
+        function openCamera(target) {
+            activeTarget = target;
+            const overlay = document.getElementById('camera-overlay');
+            const video = document.getElementById('camera-video');
+            const snapBtn = document.getElementById('snap-btn');
+            const retakeBtn = document.getElementById('retake-btn');
+            const useBtn = document.getElementById('use-btn');
+            const snapshotPreview = document.getElementById('camera-snapshot-preview');
+
+            // Reset state
+            video.style.display = 'block';
+            snapshotPreview.style.display = 'none';
+            snapBtn.style.display = 'flex';
+            retakeBtn.classList.remove('visible');
+            useBtn.classList.remove('visible');
+
+            overlay.classList.add('open');
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+                .then(stream => {
+                    cameraStream = stream;
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    console.error('Camera error:', err);
+                    alert('Camera access denied or not available. Please allow camera permission.');
+                    closeCamera();
+                });
+        }
+
+        function snapPhoto() {
+            const video = document.getElementById('camera-video');
+            const canvas = document.getElementById('camera-canvas');
+            const snapshotPreview = document.getElementById('camera-snapshot-preview');
+            const snapBtn = document.getElementById('snap-btn');
+            const retakeBtn = document.getElementById('retake-btn');
+            const useBtn = document.getElementById('use-btn');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            const dataUrl = canvas.toDataURL('image/png');
+            snapshotPreview.src = dataUrl;
+            snapshotPreview.style.display = 'block';
+            video.style.display = 'none';
+            snapBtn.style.display = 'none';
+            retakeBtn.classList.add('visible');
+            useBtn.classList.add('visible');
+        }
+
+        function retakePhoto() {
+            const video = document.getElementById('camera-video');
+            const snapBtn = document.getElementById('snap-btn');
+            const retakeBtn = document.getElementById('retake-btn');
+            const useBtn = document.getElementById('use-btn');
+            const snapshotPreview = document.getElementById('camera-snapshot-preview');
+
+            snapshotPreview.style.display = 'none';
+            video.style.display = 'block';
+            snapBtn.style.display = 'flex';
+            retakeBtn.classList.remove('visible');
+            useBtn.classList.remove('visible');
+        }
+
+        function usePhoto() {
+            const canvas = document.getElementById('camera-canvas');
+            const inputId = activeTarget === 'encode' ? 'encode-file-input' : 'decode-file-input';
+            const previewId = activeTarget === 'encode' ? 'preview-encode' : 'preview-decode';
+            const fileInput = document.getElementById(inputId);
+
+            canvas.toBlob(blob => {
+                const fileName = 'camera_capture_' + Date.now() + '.png';
+                const file = new File([blob], fileName, { type: 'image/png' });
+
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                fileInput.files = dt.files;
+
+                // Show preview
+                const preview = document.getElementById(previewId);
+                preview.src = URL.createObjectURL(blob);
+                preview.style.display = 'block';
+
+                closeCamera();
+            }, 'image/png');
+        }
+
+        function closeCamera() {
+            const overlay = document.getElementById('camera-overlay');
+            overlay.classList.remove('open');
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+            const video = document.getElementById('camera-video');
+            video.srcObject = null;
+        }
+
+        // Close modal on overlay background click
+        document.getElementById('camera-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeCamera();
         });
     </script>
 </body>
